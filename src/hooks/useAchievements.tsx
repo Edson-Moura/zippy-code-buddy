@@ -304,8 +304,9 @@ export const useAchievements = () => {
   };
 
   const getUnlockedBadges = (): Badge[] => {
-    return userAchievements
-      .map(ua => getBadgeById(ua.badgeId))
+    const uniqueBadgeIds = [...new Set(userAchievements.map(ua => ua.badgeId))];
+    return uniqueBadgeIds
+      .map(badgeId => getBadgeById(badgeId))
       .filter(Boolean) as Badge[];
   };
 
