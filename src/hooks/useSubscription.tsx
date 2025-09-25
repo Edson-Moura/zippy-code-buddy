@@ -129,6 +129,7 @@ export const useSubscription = () => {
 
     setLoading(true);
     logger.userAction('Create checkout initiated', user.id, { plan });
+    console.log('useSubscription - Creating checkout for plan:', plan);
     
     const result = await handleAsyncError(
       async () => {
@@ -140,11 +141,19 @@ export const useSubscription = () => {
         });
 
         if (error) {
+          console.error('Checkout error details:', error);
+          // More specific error handling
+          if (error.message?.includes('Invalid plan selected')) {
+            throw new Error('Plano selecionado inválido. Tente novamente.');
+          }
+          if (error.message?.includes('STRIPE_SECRET_KEY')) {
+            throw new Error('Sistema de pagamento temporariamente indisponível. Tente novamente em alguns minutos.');
+          }
           throw error;
         }
 
         if (!data?.url) {
-          throw new Error('No checkout URL returned from payment service');
+          throw new Error('Não foi possível criar a sessão de checkout. Tente novamente.');
         }
 
         logger.info('Checkout session created successfully', { url: data.url }, 'useSubscription', user.id);

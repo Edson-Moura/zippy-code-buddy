@@ -112,7 +112,20 @@ export const PricingSection = () => {
       return;
     }
 
-    const planKey = plan.name.toLowerCase();
+    // Map plan names correctly for the edge function
+    const planMapping: { [key: string]: string } = {
+      'Premium': 'premium',
+      'Pro': 'pro',
+      'Anual': 'anual'
+    };
+
+    const planKey = planMapping[plan.name];
+    if (!planKey) {
+      console.error('Invalid plan name:', plan.name);
+      return;
+    }
+    
+    console.log('Sending plan to checkout:', planKey);
     createCheckout(planKey);
   };
 

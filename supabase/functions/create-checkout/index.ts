@@ -51,6 +51,9 @@ serve(async (req) => {
 
     const { plan } = await req.json();
     console.log(`Creating checkout for plan: ${plan} (user: ${user.id})`);
+    
+    // Debug: log available plans
+    console.log('Available plans:', ['premium', 'pro', 'anual']);
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2023-10-16" });
     
@@ -98,7 +101,8 @@ serve(async (req) => {
 
     const selectedPrice = priceData[plan as keyof typeof priceData];
     if (!selectedPrice) {
-      throw new Error("Invalid plan selected");
+      console.log(`Invalid plan selected: ${plan}. Available plans:`, Object.keys(priceData));
+      throw new Error(`Invalid plan selected: ${plan}. Available plans: ${Object.keys(priceData).join(', ')}`);
     }
 
     const session = await stripe.checkout.sessions.create({
