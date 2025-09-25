@@ -94,7 +94,7 @@ export const Header = () => {
               rel="noopener noreferrer"
               className="flex items-center gap-1 md:gap-2"
             >
-              <img src={whatsappIcon} alt="WhatsApp" className="w-4 h-4" />
+              <img src={whatsappIcon} alt="WhatsApp" className="w-5 h-5 md:w-6 md:h-6" />
               <span className="hidden md:inline text-sm">WhatsApp</span>
             </a>
           </Button>
