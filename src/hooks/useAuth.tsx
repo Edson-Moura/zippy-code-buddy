@@ -88,7 +88,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       if (error) {
+        console.error('SignUp error details:', error);
         let message = "Erro ao criar conta.";
+        
         if (error.message.includes("User already registered")) {
           message = "Este email já está cadastrado. Tente fazer login.";
         } else if (error.message.includes("Password")) {
@@ -97,6 +99,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           message = "Email inválido.";
         } else if (error.message.includes("429") || error.message.includes("rate limit") || error.message.includes("over_email_send_rate_limit")) {
           message = "Muitos emails enviados. Aguarde alguns minutos e tente novamente.";
+        } else if (error.message.includes("Email not confirmed")) {
+          message = "Email não confirmado. Verifique sua caixa de entrada.";
+        } else if (error.message.includes("invalid_request") || error.message.includes("invalid_grant")) {
+          message = "Erro de configuração. Entre em contato com o suporte.";
+        } else if (error.message.includes("signup_disabled")) {
+          message = "Cadastros temporariamente desabilitados.";
+        } else {
+          // Log detailed error for debugging
+          message = `Erro no cadastro: ${error.message}`;
         }
         
         toast({
