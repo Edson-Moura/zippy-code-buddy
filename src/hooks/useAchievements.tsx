@@ -241,8 +241,13 @@ export const useAchievements = () => {
         });
 
       if (error) {
-        console.error('Error unlocking achievement:', error);
-        // Still add locally for now
+        // Check if it's a constraint error - table might not be set up properly
+        if (error.code === '23503' || error.code === '42P01') {
+          console.warn('Achievement table not properly configured, storing locally only');
+        } else {
+          console.error('Error unlocking achievement:', error);
+        }
+        // Still add locally for functionality
       }
 
       const newAchievement: UserAchievement = {

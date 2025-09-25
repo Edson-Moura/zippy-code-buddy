@@ -30,13 +30,32 @@ export const useSubscription = () => {
     const result = await handleAsyncError(
       async () => {
         try {
+          // Add timeout to prevent hanging requests
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds
+          
           const { data, error } = await supabase.functions.invoke('check-subscription', {
             headers: {
               Authorization: `Bearer ${session.access_token}`,
             },
+            signal: controller.signal,
           });
 
+          clearTimeout(timeoutId);
+
           if (error) {
+            // Check if it's a network error
+            if (error.name === 'FunctionsFetchError' || error.message?.includes('Failed to fetch')) {
+              console.warn('Network error checking subscription, using fallback');
+              // Set fallback state - user not subscribed
+              const fallbackData = {
+                subscribed: false,
+                subscription_tier: null,
+                subscription_end: null,
+              };
+              setSubscriptionData(fallbackData);
+              return fallbackData;
+            }
             throw error;
           }
 
@@ -58,7 +77,7 @@ export const useSubscription = () => {
           setSubscriptionData(newSubscriptionData);
           return newSubscriptionData;
         } catch (error) {
-          // Log the error but don't throw - handle gracefully
+          // Enhanced error handling with fallback
           console.error('Subscription check failed:', error);
           
           // Set default values - user is not subscribed
@@ -69,6 +88,18 @@ export const useSubscription = () => {
           };
           
           setSubscriptionData(defaultData);
+          
+          // Only show error to user if it's not a network issue
+          if (!(error instanceof Error) || 
+              (!error.message?.includes('Failed to fetch') && 
+               !error.message?.includes('NetworkError'))) {
+            toast({
+              title: "Erro",
+              description: "Não foi possível verificar o status da assinatura. Tente novamente.",
+              variant: "destructive"
+            });
+          }
+          
           return defaultData;
         }
       },
