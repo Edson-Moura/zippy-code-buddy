@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const redirectUrl = `${window.location.origin}/email-confirmation`;
       
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -90,8 +90,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) {
         console.error('SignUp error details:', error);
         let message = "Erro ao criar conta.";
+        let softSuccess = false;
         
-        if (error.message.includes("User already registered")) {
+        if (error.message.toLowerCase().includes("error sending confirmation email") && data?.user) {
+          softSuccess = true;
+          message = "Conta criada, mas não conseguimos enviar o email de confirmação agora. Clique em 'Reenviar Email de Confirmação' ou tente novamente mais tarde.";
+        } else if (error.message.includes("User already registered")) {
           message = "Este email já está cadastrado. Tente fazer login.";
         } else if (error.message.includes("Password")) {
           message = "A senha deve ter pelo menos 6 caracteres.";
@@ -111,10 +115,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
         
         toast({
-          title: "Erro no cadastro",
+          title: softSuccess ? "Conta criada com observação" : "Erro no cadastro",
           description: message,
-          variant: "destructive",
+          variant: softSuccess ? "default" : "destructive",
         });
+
+        if (softSuccess) {
+          // Consider as success so the UI can show the confirmation screen and allow resend
+          return { error: null };
+        }
       } else {
         toast({
           title: "Conta criada!",
