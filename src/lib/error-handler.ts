@@ -204,6 +204,12 @@ class ErrorHandler {
       case ErrorCategory.AUTH:
         return "Erro de autenticação. Faça login novamente.";
       case ErrorCategory.SUBSCRIPTION:
+        if (appError.message.includes('STRIPE_SECRET_KEY') || appError.message.includes('configuration')) {
+          return "Sistema de pagamento temporariamente indisponível. Tente novamente em alguns minutos.";
+        }
+        if (appError.message.includes('checkout') || appError.message.includes('payment')) {
+          return "Não foi possível processar o pagamento. Tente novamente.";
+        }
         return "Erro no sistema de assinatura. Tente novamente em alguns instantes.";
       case ErrorCategory.VALIDATION:
         return "Dados inválidos. Verifique as informações e tente novamente.";

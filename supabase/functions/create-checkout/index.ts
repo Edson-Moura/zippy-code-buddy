@@ -125,8 +125,24 @@ serve(async (req) => {
       status: 200,
     });
   } catch (error) {
-    console.error("Error creating checkout:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("Error creating checkout:", {
+      error: errorMessage,
+      timestamp: new Date().toISOString(),
+      userId: req.headers.get("Authorization") ? "authenticated" : "not_authenticated"
+    });
+    
+    // Return user-friendly error message
+    const userErrorMessage = errorMessage.includes('STRIPE_SECRET_KEY') 
+      ? "Payment system temporarily unavailable"
+      : errorMessage.includes('plan')
+      ? "Invalid subscription plan selected"
+      : "Failed to create checkout session";
+    
+    return new Response(JSON.stringify({ 
+      error: userErrorMessage,
+      details: errorMessage 
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });
