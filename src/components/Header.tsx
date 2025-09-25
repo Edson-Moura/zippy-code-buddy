@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MessageSquare, Phone, User, LogOut, Settings, BookOpen, Home, BarChart3, Trophy } from "lucide-react";
+import { MessageSquare, User, LogOut, Settings, BookOpen, Home, BarChart3, Trophy } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { Link } from "react-router-dom";
 import { FeedbackWidget } from "@/components/FeedbackWidget";
+import whatsappIcon from "@/assets/whatsapp-icon.svg";
 // import fluentTalkLogo from "@/assets/fluenttalk-logo.png";
 
 export const Header = () => {
@@ -93,7 +94,7 @@ export const Header = () => {
               rel="noopener noreferrer"
               className="flex items-center gap-1 md:gap-2"
             >
-              <Phone className="w-4 h-4" />
+              <img src={whatsappIcon} alt="WhatsApp" className="w-4 h-4" />
               <span className="hidden md:inline text-sm">WhatsApp</span>
             </a>
           </Button>
