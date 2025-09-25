@@ -83,7 +83,7 @@ export const useAchievements = () => {
       // Create default achievements since we don't have achievement_templates table
       const defaultBadges: Badge[] = [
         {
-          id: 'first_lesson',
+          id: '550e8400-e29b-41d4-a716-446655440001',
           name: 'Primeira Lição',
           description: 'Complete sua primeira lição',
           icon: getIconForCategory('milestone'),
@@ -95,7 +95,7 @@ export const useAchievements = () => {
           rarity: 'bronze'
         },
         {
-          id: 'streak_3',
+          id: '550e8400-e29b-41d4-a716-446655440002',
           name: 'Consistência',
           description: 'Mantenha uma sequência de 3 dias',
           icon: getIconForCategory('consistency'),
@@ -107,7 +107,7 @@ export const useAchievements = () => {
           rarity: 'silver'
         },
         {
-          id: 'master_10',
+          id: '550e8400-e29b-41d4-a716-446655440003',
           name: 'Estudante Dedicado',
           description: 'Domine 10 frases',
           icon: getIconForCategory('mastery'),
@@ -119,7 +119,7 @@ export const useAchievements = () => {
           rarity: 'gold'
         },
         {
-          id: 'daily_goal_7',
+          id: '550e8400-e29b-41d4-a716-446655440004',
           name: 'Meta Diária',
           description: 'Atinja sua meta diária por 7 dias',
           icon: getIconForCategory('engagement'),
@@ -242,7 +242,7 @@ export const useAchievements = () => {
 
       if (error) {
         console.error('Error unlocking achievement:', error);
-        // Still add locally for now since we don't have achievement_template_id in the table schema
+        // Still add locally for now
       }
 
       const newAchievement: UserAchievement = {

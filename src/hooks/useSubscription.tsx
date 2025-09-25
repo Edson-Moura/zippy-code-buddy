@@ -21,7 +21,7 @@ export const useSubscription = () => {
   const { user, session } = useAuth();
   const { toast } = useToast();
 
-  const checkSubscription = useCallback(async () => {
+    const checkSubscription = useCallback(async () => {
     if (!user || !session) return;
 
     setLoading(true);
@@ -29,33 +29,48 @@ export const useSubscription = () => {
     
     const result = await handleAsyncError(
       async () => {
-        const { data, error } = await supabase.functions.invoke('check-subscription', {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-          },
-        });
+        try {
+          const { data, error } = await supabase.functions.invoke('check-subscription', {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          });
 
-        if (error) {
-          throw error;
+          if (error) {
+            throw error;
+          }
+
+          if (!data || typeof data !== 'object') {
+            throw new Error('Invalid response format from subscription service');
+          }
+
+          const newSubscriptionData = {
+            subscribed: data.subscribed || false,
+            subscription_tier: data.subscription_tier || null,
+            subscription_end: data.subscription_end || null,
+          };
+          
+          logger.info('Subscription data retrieved successfully', { 
+            subscribed: newSubscriptionData.subscribed,
+            tier: newSubscriptionData.subscription_tier 
+          }, 'useSubscription', user.id);
+          
+          setSubscriptionData(newSubscriptionData);
+          return newSubscriptionData;
+        } catch (error) {
+          // Log the error but don't throw - handle gracefully
+          console.error('Subscription check failed:', error);
+          
+          // Set default values - user is not subscribed
+          const defaultData = {
+            subscribed: false,
+            subscription_tier: null,
+            subscription_end: null,
+          };
+          
+          setSubscriptionData(defaultData);
+          return defaultData;
         }
-
-        if (!data || typeof data !== 'object') {
-          throw new Error('Invalid response format from subscription service');
-        }
-
-        const newSubscriptionData = {
-          subscribed: data.subscribed || false,
-          subscription_tier: data.subscription_tier || null,
-          subscription_end: data.subscription_end || null,
-        };
-        
-        logger.info('Subscription data retrieved successfully', { 
-          subscribed: newSubscriptionData.subscribed,
-          tier: newSubscriptionData.subscription_tier 
-        }, 'useSubscription', user.id);
-        
-        setSubscriptionData(newSubscriptionData);
-        return newSubscriptionData;
       },
       {
         userId: user.id,
@@ -63,15 +78,6 @@ export const useSubscription = () => {
         component: 'useSubscription'
       }
     );
-
-    if (!result) {
-      // Set default values on error to prevent cached stale data
-      setSubscriptionData({
-        subscribed: false,
-        subscription_tier: null,
-        subscription_end: null,
-      });
-    }
 
     setLoading(false);
   }, [user?.id, session?.access_token]);

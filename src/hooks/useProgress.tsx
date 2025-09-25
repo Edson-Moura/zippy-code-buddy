@@ -102,9 +102,9 @@ export const useProgress = () => {
         .select('*')
         .eq('user_id', user.id)
         .eq('activity_date', today)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error fetching today activity:', error);
       } else {
         setTodayActivity(data);
